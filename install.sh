@@ -74,7 +74,7 @@ json.dump(cfg, open(path, "w"), indent=2)
 EOF
 fi
 
-if [ $AUTOSTART = 1 ] && ! grep -qE '# auto-start (agent|claude)' "$HOME/.profile" 2>/dev/null; then
+if [ $AUTOSTART = 1 ] && ! grep -q '# auto-start agent' "$HOME/.profile" 2>/dev/null; then
   step "auto-start agent"
   cat "$REPO/adapter/profile-autostart.sh" >> "$HOME/.profile"
 fi

@@ -93,4 +93,3 @@ The `touch` state only changes the look and lets injected taps pass through the 
 - The take-over marker stops `phonectl` and the lock. It cannot stop an agent that calls `input` directly.
 - The terminal button opens Haven (`sh.haven.app`). For another terminal change the package name in
   `PillService.java`, `AndroidManifest.xml` (`<queries>`) and `touchlock.c`, then rebuild.
-- Releases up to v1.2.0 used another package id. Uninstall that app before installing a newer build.
