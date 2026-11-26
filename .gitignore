@@ -1,0 +1,6 @@
+out/
+sdk/
+*.keystore
+*.apk
+*.bak
+*.png

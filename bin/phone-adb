@@ -1,0 +1,28 @@
+#!/bin/sh
+# usage: phone-adb [wireless-debugging-port]   (port is looked up via Shizuku/rish when omitted)
+T=127.0.0.1:5555
+ok() { [ "$(timeout 8 adb -s "$1" get-state 2>/dev/null)" = device ]; }
+# restarting adbd (tcpip switch) kills the Shizuku server, so start it again if missing
+shizuku() {
+  timeout 30 adb -s $T shell 'pidof shizuku_server >/dev/null || { p=$(pm path moe.shizuku.privileged.api); a=${p#package:}; $(dirname $a)/lib/*/libshizuku.so >/dev/null; }'
+}
+timeout 10 adb connect $T >/dev/null 2>&1
+ok $T && { shizuku; echo "connected: $T"; exit 0; }
+adb disconnect $T >/dev/null 2>&1
+P=$1
+if [ -z "$P" ]; then
+  timeout 20 rish -c 'settings put global adb_wifi_enabled 1' </dev/null >/dev/null 2>&1
+  sleep 3
+  P=$(timeout 20 rish -c 'getprop service.adb.tls.port' </dev/null 2>/dev/null | tr -dc 0-9)
+fi
+[ -n "$P" ] && [ "$P" != 0 ] || { echo "5555 unavailable and no port found: check Wi-Fi and Shizuku, or run: phone-adb <port>"; exit 1; }
+S=127.0.0.1:$P
+timeout 10 adb connect $S
+ok $S || { echo "cannot connect to $S"; exit 1; }
+timeout 10 adb -s $S tcpip 5555
+sleep 3
+adb disconnect $S >/dev/null 2>&1
+timeout 10 adb connect $T
+ok $T || { echo "switch to 5555 failed"; exit 1; }
+shizuku
+echo "connected: $T"

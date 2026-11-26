@@ -1,0 +1,7 @@
+{
+  "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "PreToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "PermissionRequest": [{"matcher": "*", "hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "Stop": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "SessionEnd": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}]
+}

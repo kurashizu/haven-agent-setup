@@ -1,0 +1,4 @@
+#!/bin/sh
+# phone-shot <out.png> : screenshot without the Claude status pill
+S="am start-foreground-service -n com.local.claudepill/.PillService --es state"
+timeout 40 rish -c "$S hide >/dev/null 2>&1; sleep 0.4; screencap -p; $S show >/dev/null 2>&1" </dev/null > "$1"

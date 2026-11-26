@@ -1,0 +1,12 @@
+#!/bin/sh
+# print visible texts and tap centres of the current Android screen
+adb -s 127.0.0.1:5555 exec-out sh -c 'uiautomator dump /data/local/tmp/u.xml >/dev/null; cat /data/local/tmp/u.xml' | python3 -I -c '
+import sys,re
+import xml.etree.ElementTree as E
+for n in E.fromstring(sys.stdin.read()).iter("node"):
+    t=n.get("text") or n.get("content-desc")
+    chk=n.get("checkable")=="true"
+    if t or chk:
+        a,b,c,d=map(int,re.findall(r"\d+",n.get("bounds")))
+        print((a+c)//2,(b+d)//2,n.get("package").split(".")[-1],repr(t),"checked="+n.get("checked") if chk else "")
+'
