@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -I
 """phonectl - agent-agnostic phone control with status pill and touch lock. See docs/integration.md.
 
-  phonectl state working|waiting|done|off [text] [--new-task]
+  phonectl state working|waiting|done|idle|off [text] [--new-task]
   phonectl tap X Y | swipe X1 Y1 X2 Y2 [MS] | text STRING | key KEYCODE | open PACKAGE[/ACTIVITY]
            (each accepts --label TEXT)
   phonectl lock [--label TEXT] | unlock | status | shot FILE.png
@@ -39,7 +39,7 @@ def set_state(state, text="", new_task=False):
                + pill('"$S"', text))
     elif state == "waiting":
         sh += f"{LOCK} unlock >/dev/null; " + pill("wait", text)
-    elif state in ("done", "off"):
+    elif state in ("done", "idle", "off"):
         sh += f"{LOCK} unlock >/dev/null; " + pill(state, text)
     else:
         return 2

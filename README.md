@@ -2,7 +2,7 @@
 
 Let a coding agent running **on** an Android phone control that same phone: the [Haven](https://github.com/GlassHaven/Haven) terminal → Debian (proot) → agent → [Shizuku](https://github.com/RikkaApps/Shizuku). **No root, no computer.**
 
-Built with Claude Code. The core is agent-agnostic: see [connecting any agent](docs/integration.md).
+The core works through one command, `phonectl`: see [connecting an agent](docs/integration.md).
 
 ## What is in here
 
@@ -10,11 +10,10 @@ Built with Claude Code. The core is agent-agnostic: see [connecting any agent](d
 |---|---|
 | `pill/` | **Agent Pill**: a floating pill showing the agent's state with a live step timer (draggable, tucks into a screen edge) |
 | `touchlock/` | Grabs the touchscreen while the agent operates it: your fingers are ignored, injected input still works |
-| `bin/` | `phonectl` (the interface for any agent), `status.py` (Claude Code hooks), `phone-shot` (screenshot without the pill), `phone-adb` (adb reconnect), `ui-texts` |
-| `adapters/` | Instruction snippet for any agent, OpenCode plugin example (untested) |
-| `claude/` | Claude Code hook configuration, status line script, auto-start snippet, memory note templates |
-| `docs/` | [Setup](docs/setup.md), [pill and touch lock](docs/pill.md), [connecting any agent](docs/integration.md), [pitfalls](docs/pitfalls.md) |
-| `tests/` | Manual test scripts used during development (they really operate the screen; coordinates assume 1080×2400 portrait) |
+| `bin/` | `phonectl` (the interface), `status.py` (bundled hook adapter), `phone-shot` (screenshot without the pill), `phone-adb` (adb reconnect), `ui-texts` |
+| `claude/` | Configuration for the bundled hook adapter, status line script, auto-start snippet, memory note templates |
+| `docs/` | [Setup](docs/setup.md), [pill and touch lock](docs/pill.md), [connecting an agent](docs/integration.md), [instructions for an agent](docs/agent-instructions.md), [pitfalls](docs/pitfalls.md) |
+| `tests/` | Test scripts. `test-status.py` runs offline; the shell scripts really operate the screen (coordinates assume 1080×2400 portrait) |
 
 ## Install
 
@@ -23,9 +22,9 @@ Install and start Shizuku first ([docs/setup.md](docs/setup.md)), then:
 ```bash
 git clone https://github.com/kurashizu/haven-claude-setup
 cd haven-claude-setup
-./install.sh                 # pill, touch lock, phonectl, Claude Code hooks
-./install.sh --no-hooks      # core only, for other agents
-./install.sh --statusline --autostart --memory   # optional extras
+./install.sh                 # pill, touch lock, phonectl, bundled hook adapter
+./install.sh --no-hooks      # core only
+./install.sh --statusline --autostart --memory   # optional extras of the bundled adapter
 ```
 
 Restart your agent afterwards. The clone is the running copy, so do not move or delete it.
@@ -43,8 +42,9 @@ The [releases](https://github.com/kurashizu/haven-claude-setup/releases) carry a
 
 Developed and used on a single Android 16 phone.
 
-- Only Claude Code has been used with this. The OpenCode example is **untested**.
-- **`install.sh` has not been run end to end on a fresh setup.**
+- Only the bundled hook adapter has been used with a real agent.
+- Showing `Idle` after a real interrupt: tested offline only.
+- `install.sh` has been run on an already configured phone, **not on a fresh setup**.
 - Shizuku starting by itself after a reboot: not verified.
 - Tucking into the left edge, the vibration when tucking, and pressing the small round buttons while locked: not separately verified.
 - In landscape the button hit areas may be off while locked (use a volume key).

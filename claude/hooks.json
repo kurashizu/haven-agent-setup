@@ -1,8 +1,11 @@
 {
   "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
   "PreToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
-  "PostToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25, "async": true}]}],
   "PermissionRequest": [{"matcher": "*", "hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "PostToolBatch": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "PostToolUseFailure": [{"matcher": "*", "hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "PreCompact": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
   "Stop": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
+  "StopFailure": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}],
   "SessionEnd": [{"hooks": [{"type": "command", "command": "__REPO__/bin/status.py hook", "timeout": 25}]}]
 }

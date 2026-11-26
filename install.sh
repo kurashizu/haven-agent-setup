@@ -2,7 +2,7 @@
 # Install the whole setup inside Haven's Debian proot. Shizuku must already be running (docs/setup.md).
 #   ./install.sh [--no-hooks] [--statusline] [--autostart] [--memory]
 # --no-hooks installs only the agent-agnostic core (pill, touch lock, phonectl); see docs/integration.md.
-# The other options are for Claude Code.
+# The other options belong to the bundled hook adapter.
 set -euo pipefail
 REPO=$(cd "$(dirname "$0")" && pwd)
 PKG=com.local.claudepill
@@ -51,7 +51,7 @@ ln -sf "$REPO/bin/phonectl" /usr/local/bin/phonectl
 ln -sf "$REPO/bin/phone-shot" /usr/local/bin/phone-shot
 
 if [ $HOOKS = 1 ]; then
-step "Claude Code hooks"
+step "hook adapter"
 mkdir -p "$HOME/.claude"
 python3 -I - "$REPO" "$STATUSLINE" <<'EOF'
 import json, os, shutil, sys
@@ -91,4 +91,4 @@ if [ $MEMORY = 1 ]; then
   done
 fi
 
-printf '\nDone. Restart your agent. Optional: claude mcp add --transport http -s user haven http://127.0.0.1:8730/mcp\n'
+printf '\nDone. Restart your agent.\n'

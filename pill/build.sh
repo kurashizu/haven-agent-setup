@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build Claude Pill on the phone itself (Debian arm64). Output: pill/out/claudepill.apk
+# Build Agent Pill on the phone itself (Debian arm64). Output: pill/out/claudepill.apk
 set -e
 cd "$(dirname "$0")"
 mkdir -p sdk

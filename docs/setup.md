@@ -1,6 +1,6 @@
 # Setup
 
-Requirements: Android 11+ (13+ for start-on-boot), Debian installed in Haven, a coding agent (Claude Code or other) installed in Debian.
+Requirements: Android 11+ (13+ for start-on-boot), Debian installed in Haven, a coding agent installed in Debian.
 
 ## 1. Wireless debugging (adb to the phone itself)
 
@@ -33,11 +33,7 @@ Port 5555 is visible to your network (an authorised key is still required) and i
 
 ## 4. Optional: Haven MCP
 
-Haven serves MCP locally (notifications, sensors, terminal sessions, file transfer and more):
-
-```bash
-claude mcp add --transport http -s user haven http://127.0.0.1:8730/mcp
-```
+Haven serves MCP locally (notifications, sensors, terminal sessions, file transfer and more). Add it to your agent as an HTTP MCP server at `http://127.0.0.1:8730/mcp`.
 
 It grants broad access (mail, TOTP codes, camera, location). Add it only if you need it.
 
@@ -46,7 +42,6 @@ It grants broad access (mail, TOTP codes, camera, location). Add it only if you 
 ```bash
 rish -c '/data/local/tmp/touchlock unlock; pm uninstall com.local.claudepill'
 rish -c 'settings delete global adb_allowed_connection_time'
-claude mcp remove -s user haven
 ```
 
-Then remove the hooks from `~/.claude/settings.json` (the installer saves a backup as `settings.json.bak`).
+Then remove the MCP server and the hooks from your agent's configuration (the installer saves a backup as `settings.json.bak`).

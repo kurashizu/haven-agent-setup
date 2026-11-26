@@ -389,6 +389,7 @@ public class PillService extends Service {
             case "taken": color = 0xFFC08BFF; title = "Taken over"; text = "Agent is blocked"; break;
             case "wait":  color = 0xFF5AA9FF; title = "Your turn"; break;
             case "done":  color = 0xFF5FD38A; title = "Done"; break;
+            case "idle":  color = 0xFF8E8E9A; title = "Idle"; text = ""; break;
             default:      color = 0xFFFFC94D; title = "Working"; break;
         }
         current = state;
@@ -414,7 +415,7 @@ public class PillService extends Service {
         take.setContentDescription(state.equals("taken") ? "Hand back" : "Take over");
         take.setTextColor(0xFF101014);
         take.setBackground(round(color, 20));
-        take.setVisibility(state.equals("wait") || state.equals("done") ? View.GONE : View.VISIBLE);
+        take.setVisibility(state.equals("wait") || state.equals("done") || state.equals("idle") ? View.GONE : View.VISIBLE);
         // While locked the lock tool reads the buttons itself, so the window lets injected taps through
         // (needs alpha <= 0.8 on Android 12+). Otherwise it is an ordinary touchable window.
         boolean locked = state.equals("touch");

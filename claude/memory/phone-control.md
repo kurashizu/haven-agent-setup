@@ -5,7 +5,7 @@ metadata:
   type: reference
 ---
 
-Claude runs in a proot Debian inside Haven on an Android phone.
+You run in a proot Debian inside Haven on an Android phone.
 
 **Primary: Shizuku.** `timeout 30 rish -c '<cmd>' </dev/null` runs with shell uid. Screenshot: `phone-shot file.png` (hides the status pill). `input`, `am`, `settings`, `pm` work; `uiautomator dump` does not. If Shizuku is not running, ask the user to open the Shizuku app and tap Start.
 

@@ -1,11 +1,11 @@
 ---
 name: status-pill
-description: Status pill and touch lock shown while Claude operates the phone
+description: Status pill and touch lock shown while the agent operates the phone
 metadata:
   type: feedback
 ---
 
-A floating pill shows Claude's state, physical touch is blocked while Claude drives the screen, and the pill buttons always work. Hooks in `~/.claude/settings.json` drive it; code is in `__REPO__`.
+A floating pill shows your state, physical touch is blocked while you drive the screen, and the pill buttons always work. Hooks in `~/.claude/settings.json` drive it; code is in `__REPO__`.
 
 Drive the screen with `phonectl tap|swipe|text|key|open` (it locks touch itself); `phonectl unlock` when finished. Raw `input` / `am start` commands are also detected by the hook, but not when hidden inside scripts. Taken over (button or volume key) means stop and ask. Switch back to Haven when done.
 
