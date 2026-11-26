@@ -1,6 +1,6 @@
 # Setup
 
-Requirements: Android 11+ (13+ for start-on-boot), Debian installed in Haven, Claude Code installed in Debian.
+Requirements: Android 11+ (13+ for start-on-boot), Debian installed in Haven, a coding agent (Claude Code or other) installed in Debian.
 
 ## 1. Wireless debugging (adb to the phone itself)
 

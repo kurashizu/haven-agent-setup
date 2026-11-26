@@ -1,0 +1,122 @@
+#!/usr/bin/python3 -I
+"""phonectl - agent-agnostic phone control with status pill and touch lock. See docs/integration.md.
+
+  phonectl state working|waiting|done|off [text] [--new-task]
+  phonectl tap X Y | swipe X1 Y1 X2 Y2 [MS] | text STRING | key KEYCODE | open PACKAGE[/ACTIVITY]
+           (each accepts --label TEXT)
+  phonectl lock [--label TEXT] | unlock | status | shot FILE.png
+
+Exit codes: 0 ok, 1 failed, 2 usage, 3 the user has taken over (stop and ask them).
+"""
+import base64, re, shlex, subprocess, sys, time
+
+LOCK = "/data/local/tmp/touchlock"
+OVER = "/sdcard/Android/data/com.local.claudepill/files/override"
+SERVICE = "am start-foreground-service -n com.local.claudepill/.PillService"
+LOCK_SECONDS = 90
+TAKEN_OVER = 3
+
+
+def rish(script, **kw):
+    kw.setdefault("stdout", subprocess.DEVNULL)
+    return subprocess.run(["rish", "-c", script], stdin=subprocess.DEVNULL, timeout=40, **kw)
+
+
+def pill(state_expr, text=""):
+    """Shell fragment that sends one state to the pill. state_expr may be a shell variable."""
+    cmd = f"{SERVICE} --es state {state_expr} --el seq {time.time_ns()}"
+    if text:
+        text = text if len(text) <= 120 else text[:117] + "..."
+        cmd += " --es b64 " + shlex.quote(base64.b64encode(text.encode()).decode())
+    return cmd + " >/dev/null"
+
+
+def set_state(state, text="", new_task=False):
+    sh = f"rm -f {OVER}; " if new_task else ""
+    if state == "working":  # keep (and renew) a lock that is already held
+        sh += (f"S=work; [ -e {OVER} ] && S=taken; "
+               f"[ \"$({LOCK} status)\" = locked ] && {LOCK} lock {LOCK_SECONDS} >/dev/null && S=touch; "
+               + pill('"$S"', text))
+    elif state == "waiting":
+        sh += f"{LOCK} unlock >/dev/null; " + pill("wait", text)
+    elif state in ("done", "off"):
+        sh += f"{LOCK} unlock >/dev/null; " + pill(state, text)
+    else:
+        return 2
+    return rish(sh).returncode
+
+
+def locked(label, action=""):
+    """Lock physical touch, show it, then run the injected action - all in one shell."""
+    sh = (f"[ -e {OVER} ] && exit {TAKEN_OVER}; "
+          f"{LOCK} lock {LOCK_SECONDS} >/dev/null || exit $?; " + pill("touch", label))
+    if action:
+        sh += "; sleep 0.3; " + action
+    return rish(sh).returncode
+
+
+def number(s):
+    return str(int(s))
+
+
+def main(argv):
+    label = None
+    if "--label" in argv:
+        i = argv.index("--label")
+        label = argv[i + 1]
+        del argv[i:i + 2]
+    new_task = "--new-task" in argv
+    argv = [a for a in argv if a != "--new-task"]
+    cmd, args = argv[0], argv[1:]
+
+    if cmd == "state":
+        return set_state(args[0], " ".join(args[1:]), new_task)
+    if cmd == "tap" and len(args) == 2:
+        x, y = map(number, args)
+        return locked(label or f"Tap {x},{y}", f"input tap {x} {y}")
+    if cmd == "swipe" and len(args) in (4, 5):
+        return locked(label or "Swipe", "input swipe " + " ".join(map(number, args)))
+    if cmd == "text" and len(args) == 1:
+        if not args[0].isascii():
+            print("input text only supports ASCII", file=sys.stderr)
+            return 1
+        # `input text` reads %s as a space
+        return locked(label or "Typing", "input text " + shlex.quote(args[0].replace(" ", "%s")))
+    if cmd == "key" and len(args) == 1 and re.fullmatch(r"[A-Z0-9_]+", args[0]):
+        return locked(label or f"Key {args[0]}", f"input keyevent {args[0]}")
+    if cmd == "open" and len(args) == 1 and re.fullmatch(r"[\w.]+(/[\w.$]+)?", args[0]):
+        target = args[0]
+        if "/" in target:
+            start = f"am start -n {shlex.quote(target)}"
+        else:
+            start = (f"c=$(cmd package resolve-activity --brief {target} | tail -1); "
+                     f"case $c in */*) am start -n \"$c\";; *) exit 1;; esac")
+        return locked(label or f"Open {target.split('/')[0]}", f"{{ {start}; }} >/dev/null")
+    if cmd == "lock" and not args:
+        return locked(label or "")
+    if cmd == "unlock" and not args:
+        return rish(f"{LOCK} unlock").returncode
+    if cmd == "status" and not args:
+        return rish(f"{LOCK} status; [ -e {OVER} ] && echo taken-over || echo agent-allowed",
+                    stdout=None).returncode
+    if cmd == "shot" and len(args) == 1:
+        with open(args[0], "wb") as f:  # hide the pill while capturing
+            return rish(f"{SERVICE} --es state hide >/dev/null 2>&1; sleep 0.4; screencap -p; "
+                        f"{SERVICE} --es state show >/dev/null 2>&1", stdout=f).returncode
+    return 2
+
+
+if __name__ == "__main__":
+    try:
+        code = main(sys.argv[1:])
+    except (IndexError, ValueError):
+        code = 2
+    except (OSError, subprocess.TimeoutExpired) as e:
+        print(f"phonectl: {e}", file=sys.stderr)
+        code = 1
+    if code == 2:
+        print(__doc__, file=sys.stderr)
+    elif code == TAKEN_OVER:
+        print("The user took over the screen (pill button or volume key). Stop operating the phone "
+              "and ask before continuing.", file=sys.stderr)
+    sys.exit(code)

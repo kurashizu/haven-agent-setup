@@ -19,6 +19,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.TypedValue;
@@ -31,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Locale;
 
 public class PillService extends Service {
     private static final long DONE_TIMEOUT_MS = 5000;
@@ -52,6 +54,19 @@ public class PillService extends Service {
     private int dock;  // 0 free, -1 tucked into the left edge, 1 into the right edge
     private long lastSeq;
     private ValueAnimator glide;
+    private TextView timer, tabTimer;
+    private String stepKey;  // what is being timed; null when nothing is running
+    private long stepStart;
+    private final Runnable tick = new Runnable() {
+        @Override public void run() {
+            if (pill == null || stepKey == null) return;
+            long s = (SystemClock.elapsedRealtime() - stepStart) / 1000;
+            String t = s < 60 ? s + "s" : String.format(Locale.US, "%d:%02d", s / 60, s % 60);
+            timer.setText(t);
+            tabTimer.setText(t);
+            handler.postDelayed(this, 1000 - (SystemClock.elapsedRealtime() - stepStart) % 1000);
+        }
+    };
 
     @Override public IBinder onBind(Intent i) { return null; }
 
@@ -64,7 +79,7 @@ public class PillService extends Service {
                 new NotificationChannel("pill", "Status pill", NotificationManager.IMPORTANCE_MIN));
         startForeground(1, new Notification.Builder(this, "pill")
                 .setSmallIcon(android.R.drawable.presence_online)
-                .setContentTitle("Claude Pill").build());
+                .setContentTitle("Agent Pill").build());
     }
 
     @Override public int onStartCommand(Intent i, int flags, int startId) {
@@ -146,6 +161,11 @@ public class PillService extends Service {
         llp.rightMargin = dp(4);
         row.addView(label, llp);
 
+        timer = text(13, 0xFFB4B4C0, false);
+        timer.setFontFeatureSettings("tnum");
+        timer.setGravity(Gravity.END);
+        row.addView(timer, new LinearLayout.LayoutParams(dp(38), -2));
+
         take = button(38);
         term = button(38);
         term.setText(">_");
@@ -172,10 +192,14 @@ public class PillService extends Service {
         detail.setPadding(dp(10), dp(6), dp(10), dp(4));
 
         tabDot = new View(this);
+        tabTimer = text(10, 0xFFFFFFFF, false);
+        tabTimer.setFontFeatureSettings("tnum");
+        tabTimer.setPadding(0, dp(4), 0, 0);
 
         pill.addView(row, new LinearLayout.LayoutParams(-2, dp(40)));
         pill.addView(detail, new LinearLayout.LayoutParams(-1, -2));
         pill.addView(tabDot, new LinearLayout.LayoutParams(dp(14), dp(14)));
+        pill.addView(tabTimer, new LinearLayout.LayoutParams(-2, -2));
         pill.setOnTouchListener(drag);
 
         params = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
@@ -195,11 +219,13 @@ public class PillService extends Service {
         row.setVisibility(tab ? View.GONE : View.VISIBLE);
         detail.setVisibility(tab || detail.length() == 0 ? View.GONE : View.VISIBLE);
         tabDot.setVisibility(tab ? View.VISIBLE : View.GONE);
+        timer.setVisibility(stepKey == null ? View.GONE : View.VISIBLE);
+        tabTimer.setVisibility(tab && stepKey != null ? View.VISIBLE : View.GONE);
         GradientDrawable bg = round(0xFF16161C, tab ? 17 : 26);
         bg.setStroke(dp(1), (color & 0x00FFFFFF) | 0x99000000);
         pill.setBackground(bg);
         int pad = dp(tab ? 0 : 6);
-        pill.setPadding(pad, tab ? dp(17) : pad, pad, tab ? dp(17) : pad);
+        pill.setPadding(pad, tab ? dp(12) : pad, pad, tab ? dp(12) : pad);
         if (tab) {
             params.width = dp(TAB_DP);
         } else {  // the pill is exactly as wide as row 1; the summary wraps inside that width
@@ -357,9 +383,10 @@ public class PillService extends Service {
 
     private void show(String state, String text) {
         String title;
+        String rawText = text;
         switch (state) {
             case "touch": color = 0xFFFF5C6C; title = "Touch locked"; if (text.isEmpty()) text = "Vol key unlocks"; break;
-            case "taken": color = 0xFFC08BFF; title = "Taken over"; text = "Claude is blocked"; break;
+            case "taken": color = 0xFFC08BFF; title = "Taken over"; text = "Agent is blocked"; break;
             case "wait":  color = 0xFF5AA9FF; title = "Your turn"; break;
             case "done":  color = 0xFF5FD38A; title = "Done"; break;
             default:      color = 0xFFFFC94D; title = "Working"; break;
@@ -372,6 +399,12 @@ public class PillService extends Service {
         if (state.equals("done")) handler.postDelayed(dismiss, DONE_TIMEOUT_MS);
         if (pill == null) build();
         if (pill == null) return;
+        // time the current step: restart when its description changes, keep running across lock/unlock
+        String key = state.equals("work") || state.equals("touch") ? String.valueOf(rawText) : null;
+        if (key == null || !key.equals(stepKey)) stepStart = SystemClock.elapsedRealtime();
+        stepKey = key;
+        handler.removeCallbacks(tick);
+        tick.run();
         label.setText(title);
         detail.setText(text);
         dot.setBackground(round(color, 5));
@@ -399,7 +432,7 @@ public class PillService extends Service {
         Notification.Builder b = new Notification.Builder(this, "done")
                 .setSmallIcon(android.R.drawable.checkbox_on_background)
                 .setColor(0xFF5FD38A)
-                .setContentTitle("Claude is done")
+                .setContentTitle("Agent is done")
                 .setContentText("Tap to open the terminal")
                 .setShowWhen(true)
                 .setAutoCancel(true);

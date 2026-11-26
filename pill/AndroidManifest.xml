@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.local.claudepill" android:versionCode="1" android:versionName="1.0">
+    package="com.local.claudepill" android:versionCode="2" android:versionName="1.1">
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="33"/>
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <queries><package android:name="sh.haven.app"/></queries>
-  <application android:label="Claude Pill" android:allowBackup="false">
+  <application android:label="Agent Pill" android:allowBackup="false">
     <!-- DUMP: only shell (and system) may drive the overlay, ordinary apps cannot -->
     <service android:name=".PillService" android:exported="true"
         android:permission="android.permission.DUMP"/>

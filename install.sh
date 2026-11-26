@@ -1,13 +1,16 @@
 #!/bin/bash
 # Install the whole setup inside Haven's Debian proot. Shizuku must already be running (docs/setup.md).
-#   ./install.sh [--statusline] [--autostart] [--memory]
+#   ./install.sh [--no-hooks] [--statusline] [--autostart] [--memory]
+# --no-hooks installs only the agent-agnostic core (pill, touch lock, phonectl); see docs/integration.md.
+# The other options are for Claude Code.
 set -euo pipefail
 REPO=$(cd "$(dirname "$0")" && pwd)
 PKG=com.local.claudepill
 T=/data/local/tmp/touchlock
-STATUSLINE=0 AUTOSTART=0 MEMORY=0
+HOOKS=1 STATUSLINE=0 AUTOSTART=0 MEMORY=0
 for a in "$@"; do
   case $a in
+    --no-hooks) HOOKS=0 ;;
     --statusline) STATUSLINE=1 ;;
     --autostart) AUTOSTART=1 ;;
     --memory) MEMORY=1 ;;
@@ -44,8 +47,10 @@ R "md5sum $T" | grep -q "$want" || { echo "touchlock was not updated" >&2; exit 
 
 step "commands"
 chmod +x "$REPO"/bin/*
+ln -sf "$REPO/bin/phonectl" /usr/local/bin/phonectl
 ln -sf "$REPO/bin/phone-shot" /usr/local/bin/phone-shot
 
+if [ $HOOKS = 1 ]; then
 step "Claude Code hooks"
 mkdir -p "$HOME/.claude"
 python3 -I - "$REPO" "$STATUSLINE" <<'EOF'
@@ -67,6 +72,7 @@ if statusline:
     cfg["statusLine"] = {"type": "command", "command": f"bash {repo}/claude/statusline-command.sh"}
 json.dump(cfg, open(path, "w"), indent=2)
 EOF
+fi
 
 if [ $AUTOSTART = 1 ] && ! grep -q '# auto-start claude' "$HOME/.profile" 2>/dev/null; then
   step "auto-start claude"
@@ -85,4 +91,4 @@ if [ $MEMORY = 1 ]; then
   done
 fi
 
-printf '\nDone. Restart Claude Code. Optional: claude mcp add --transport http -s user haven http://127.0.0.1:8730/mcp\n'
+printf '\nDone. Restart your agent. Optional: claude mcp add --transport http -s user haven http://127.0.0.1:8730/mcp\n'

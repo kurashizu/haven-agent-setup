@@ -3,7 +3,7 @@
 cd "$(dirname "$0")/.."
 R() { timeout 40 rish -c "$1" </dev/null; }
 RF=/sdcard/Android/data/com.local.claudepill/files/rects
-bin/status.py work "Preview of the narrower pill with a longer summary line"; sleep 2
+bin/phonectl state working "Preview of the narrower pill with a longer summary line"; sleep 2
 if [ "$(R "cat $RF" | cut -d' ' -f1)" = 0 ]; then
   y=$(R 'dumpsys window windows' | grep -A12 'com.local.claudepill' | grep -oE 'frame=\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]' | head -1)
   set -- $(echo "$y" | tr -c '0-9' ' ')

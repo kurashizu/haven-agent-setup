@@ -2,7 +2,7 @@
 # Leave Haven, tap the pill's Terminal button, and report which window ends up focused.
 R() { timeout 40 rish -c "$1" </dev/null; }
 R 'input keyevent HOME; sleep 2; dumpsys window | grep mCurrentFocus'
-"$(dirname "$0")/../bin/status.py" work Testing Terminal button
+"$(dirname "$0")/../bin/phonectl" state working Testing Terminal button
 sleep 1
 set -- $(R 'cat /sdcard/Android/data/com.local.claudepill/files/rects')
 x=$(( (${7} + ${9}) / 2 )); y=$(( (${8} + ${10}) / 2 ))

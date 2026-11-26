@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 R() { timeout 40 rish -c "$1" </dev/null; }
 RF=/sdcard/Android/data/com.local.claudepill/files/rects
 S='am start-foreground-service -n com.local.claudepill/.PillService --es state'
-bin/status.py work Dock test; sleep 2
+bin/phonectl state working Dock test; sleep 2
 set -- $(R "cat $RF"); x=$(( $3 - 200 )); y=$(( ($4 + $6) / 2 ))
 R "input swipe $x $y 5 $y 500"; sleep 2
 echo "tucked left:  $(R "cat $RF")"
