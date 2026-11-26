@@ -2,7 +2,7 @@
 # Drag the pill past the right edge (tuck), screenshot, then tap the tab (expand).
 cd "$(dirname "$0")/.."
 R() { timeout 40 rish -c "$1" </dev/null; }
-RF=/sdcard/Android/data/com.local.claudepill/files/rects
+RF=/sdcard/Android/data/com.local.agentpill/files/rects
 bin/phonectl state working Dock test; sleep 2
 set -- $(R "cat $RF"); echo "start:    $*"
 x=$(( $3 - 200 )); y=$(( ($4 + $6) / 2 ))

@@ -40,7 +40,7 @@ It grants broad access (mail, TOTP codes, camera, location). Add it only if you 
 ## Undo
 
 ```bash
-rish -c '/data/local/tmp/touchlock unlock; pm uninstall com.local.claudepill'
+rish -c '/data/local/tmp/touchlock unlock; pm uninstall com.local.agentpill'
 rish -c 'settings delete global adb_allowed_connection_time'
 ```
 

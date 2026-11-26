@@ -2,10 +2,10 @@
 # Open the tucked tab (it sits on the right edge), centre the pill and screenshot it.
 cd "$(dirname "$0")/.."
 R() { timeout 40 rish -c "$1" </dev/null; }
-RF=/sdcard/Android/data/com.local.claudepill/files/rects
+RF=/sdcard/Android/data/com.local.agentpill/files/rects
 bin/phonectl state working "Preview of the narrower pill with a longer summary line"; sleep 2
 if [ "$(R "cat $RF" | cut -d' ' -f1)" = 0 ]; then
-  y=$(R 'dumpsys window windows' | grep -A12 'com.local.claudepill' | grep -oE 'frame=\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]' | head -1)
+  y=$(R 'dumpsys window windows' | grep -A12 'com.local.agentpill' | grep -oE 'frame=\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]' | head -1)
   set -- $(echo "$y" | tr -c '0-9' ' ')
   R "input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))"; sleep 2
 fi

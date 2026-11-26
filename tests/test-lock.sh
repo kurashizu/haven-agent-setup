@@ -2,8 +2,8 @@
 # 30-second touch lock test; reports how the lock ended.
 timeout 60 rish -c '
 T=/data/local/tmp/touchlock
-D=/sdcard/Android/data/com.local.claudepill/files
-S="am start-foreground-service -n com.local.claudepill/.PillService --es state"
+D=/sdcard/Android/data/com.local.agentpill/files
+S="am start-foreground-service -n com.local.agentpill/.PillService --es state"
 rm -f $D/override
 $S touch >/dev/null
 sleep 1

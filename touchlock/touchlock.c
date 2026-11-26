@@ -15,9 +15,9 @@
 #include <unistd.h>
 
 #define PIDF "/data/local/tmp/touchlock.pid"
-#define OVER "/sdcard/Android/data/com.local.claudepill/files/override"
-#define RECTS "/sdcard/Android/data/com.local.claudepill/files/rects" /* W H, take x1 y1 x2 y2, term x1 y1 x2 y2 (screen px) */
-#define SVC "am start-foreground-service -n com.local.claudepill/.PillService --es state taken >/dev/null 2>&1"
+#define OVER "/sdcard/Android/data/com.local.agentpill/files/override"
+#define RECTS "/sdcard/Android/data/com.local.agentpill/files/rects" /* W H, take x1 y1 x2 y2, term x1 y1 x2 y2 (screen px) */
+#define SVC "am start-foreground-service -n com.local.agentpill/.PillService --es state taken >/dev/null 2>&1"
 #define MAXSEC 120
 #define BIT_SET(a, b) ((a[(b) / 8] >> ((b) % 8)) & 1)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python3 -I
-"""Offline test of the Claude Code adapter's logic (phonectl and Claude's status are faked)."""
+"""Offline test of the hook adapter's logic (phonectl and the agent's status are faked)."""
 import importlib.machinery, importlib.util, os, sys
 
 sys.dont_write_bytecode = True
@@ -29,7 +29,7 @@ def check(title, want):
 
 def watch(*statuses):
     values = iter(statuses)
-    st.claude_status = lambda s: next(values, "idle")
+    st.agent_status = lambda s: next(values, "idle")
     st.watch(SESSION, pause=0)
 
 

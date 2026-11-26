@@ -2,7 +2,7 @@
 # Small push past the right edge must stay open; a big push must tuck.
 cd "$(dirname "$0")/.."
 R() { timeout 40 rish -c "$1" </dev/null; }
-RF=/sdcard/Android/data/com.local.claudepill/files/rects
+RF=/sdcard/Android/data/com.local.agentpill/files/rects
 bin/phonectl state working Snap test; sleep 3
 drag() {  # drag by dx pixels, gripping the label area
   set -- $1 $(R "cat $RF")

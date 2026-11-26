@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Claude Code status line: model, effort, context left, 5h/7d usage, cwd, git branch
+# Status line for the bundled adapter: model, effort, context left, 5h/7d usage, cwd, git branch
 
 input=$(cat)
 

@@ -1,4 +1,4 @@
-package com.local.claudepill;
+package com.local.agentpill;
 
 import android.view.animation.DecelerateInterpolator;
 import android.view.HapticFeedbackConstants;

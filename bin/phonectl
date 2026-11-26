@@ -11,8 +11,8 @@ Exit codes: 0 ok, 1 failed, 2 usage, 3 the user has taken over (stop and ask the
 import base64, re, shlex, subprocess, sys, time
 
 LOCK = "/data/local/tmp/touchlock"
-OVER = "/sdcard/Android/data/com.local.claudepill/files/override"
-SERVICE = "am start-foreground-service -n com.local.claudepill/.PillService"
+OVER = "/sdcard/Android/data/com.local.agentpill/files/override"
+SERVICE = "am start-foreground-service -n com.local.agentpill/.PillService"
 LOCK_SECONDS = 90
 TAKEN_OVER = 3
 

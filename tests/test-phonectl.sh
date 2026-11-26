@@ -1,8 +1,8 @@
 #!/bin/sh
-# Exercises phonectl and the Claude Code adapter. Locks touch for a few seconds.
+# Exercises phonectl and the hook adapter. Locks touch for a few seconds.
 cd "$(dirname "$0")/.."
 P=bin/phonectl
-O=/sdcard/Android/data/com.local.claudepill/files/override
+O=/sdcard/Android/data/com.local.agentpill/files/override
 R() { timeout 40 rish -c "$1" </dev/null; }
 check() { printf '%-34s %s\n' "$1" "$2"; }
 R "rm -f $O"

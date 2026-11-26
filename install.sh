@@ -5,7 +5,7 @@
 # The other options belong to the bundled hook adapter.
 set -euo pipefail
 REPO=$(cd "$(dirname "$0")" && pwd)
-PKG=com.local.claudepill
+PKG=com.local.agentpill
 T=/data/local/tmp/touchlock
 HOOKS=1 STATUSLINE=0 AUTOSTART=0 MEMORY=0
 for a in "$@"; do
@@ -32,7 +32,7 @@ mkdir -p "$REPO/touchlock/out"
 gcc -static -O2 -Wall -o "$REPO/touchlock/out/touchlock" "$REPO/touchlock/touchlock.c"
 
 step "install app"
-APK=$REPO/pill/out/claudepill.apk
+APK=$REPO/pill/out/agentpill.apk
 # a different signing key than an earlier install makes this fail: uninstall the old app first
 timeout 120 rish -c "pm install -r -S $(stat -c %s "$APK")" < "$APK"
 R "appops set $PKG SYSTEM_ALERT_WINDOW allow; pm grant $PKG android.permission.POST_NOTIFICATIONS; cmd deviceidle whitelist +$PKG"
@@ -61,7 +61,7 @@ cfg = {}
 if os.path.exists(path):
     shutil.copy(path, path + ".bak")
     cfg = json.load(open(path))
-template = json.loads(open(os.path.join(repo, "claude/hooks.json")).read().replace("__REPO__", repo))
+template = json.loads(open(os.path.join(repo, "adapter/hooks.json")).read().replace("__REPO__", repo))
 hooks = cfg.setdefault("hooks", {})
 for event, entries in template.items():
     # drop earlier copies of our hook, keep everything else
@@ -69,21 +69,21 @@ for event, entries in template.items():
             if not any(h.get("command", "").endswith("status.py hook") for h in e.get("hooks", []))]
     hooks[event] = kept + entries
 if statusline:
-    cfg["statusLine"] = {"type": "command", "command": f"bash {repo}/claude/statusline-command.sh"}
+    cfg["statusLine"] = {"type": "command", "command": f"bash {repo}/adapter/statusline-command.sh"}
 json.dump(cfg, open(path, "w"), indent=2)
 EOF
 fi
 
-if [ $AUTOSTART = 1 ] && ! grep -q '# auto-start claude' "$HOME/.profile" 2>/dev/null; then
-  step "auto-start claude"
-  cat "$REPO/claude/profile-autostart.sh" >> "$HOME/.profile"
+if [ $AUTOSTART = 1 ] && ! grep -qE '# auto-start (agent|claude)' "$HOME/.profile" 2>/dev/null; then
+  step "auto-start agent"
+  cat "$REPO/adapter/profile-autostart.sh" >> "$HOME/.profile"
 fi
 
 if [ $MEMORY = 1 ]; then
   step "memory notes"
   M="$HOME/.claude/projects/$(echo "$HOME" | tr / -)/memory"
   mkdir -p "$M"
-  for f in "$REPO"/claude/memory/*.md; do
+  for f in "$REPO"/adapter/memory/*.md; do
     n=$(basename "$f")
     [ -e "$M/$n" ] && { echo "kept existing $n"; continue; }
     sed "s#__REPO__#$REPO#g" "$f" > "$M/$n"

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build Agent Pill on the phone itself (Debian arm64). Output: pill/out/claudepill.apk
+# Build Agent Pill on the phone itself (Debian arm64). Output: pill/out/agentpill.apk
 set -e
 cd "$(dirname "$0")"
 mkdir -p sdk
@@ -16,12 +16,12 @@ fetch sdk/r8.jar https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.
 
 rm -rf out; mkdir -p out/classes
 aapt2 link -o out/base.apk -I sdk/android.jar --manifest AndroidManifest.xml
-javac -nowarn -encoding utf-8 --release 8 -cp sdk/android.jar -d out/classes src/com/local/claudepill/*.java
+javac -nowarn -encoding utf-8 --release 8 -cp sdk/android.jar -d out/classes src/com/local/agentpill/*.java
 java -cp sdk/r8.jar com.android.tools.r8.D8 --min-api 26 --lib sdk/android.jar --output out $(find out/classes -name '*.class')
 (cd out && zip -q base.apk classes.dex)
 zipalign -f 4 out/base.apk out/aligned.apk
 # a local throw-away signing key, generated once and never committed
 [ -f debug.keystore ] || keytool -genkeypair -keystore debug.keystore -storepass android -keypass android \
   -alias k -keyalg RSA -keysize 2048 -validity 10000 -dname CN=local 2>/dev/null
-apksigner sign --ks debug.keystore --ks-pass pass:android --out out/claudepill.apk out/aligned.apk
-ls -l out/claudepill.apk
+apksigner sign --ks debug.keystore --ks-pass pass:android --out out/agentpill.apk out/aligned.apk
+ls -l out/agentpill.apk

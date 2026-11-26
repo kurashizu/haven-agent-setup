@@ -69,7 +69,7 @@ All commands run as the Android `shell` user (through `rish` or `adb shell`).
 **Pill service** (protected by `android.permission.DUMP`):
 
 ```
-am start-foreground-service -n com.local.claudepill/.PillService --es state <state> [--el seq <n>] [--es b64 <text>]
+am start-foreground-service -n com.local.agentpill/.PillService --es state <state> [--el seq <n>] [--es b64 <text>]
 ```
 
 - `state`: `work`, `touch`, `wait`, `done`, `idle`, `taken`, `off`, and `hide` / `show` for screenshots
@@ -81,7 +81,7 @@ The `touch` state only changes the look and lets injected taps pass through the 
 **Touch lock:** `/data/local/tmp/touchlock lock <seconds ≤120> | unlock | status`.
 `lock` exits 3 while the take-over marker exists. Volume keys and the pill buttons release it.
 
-**Files** in `/sdcard/Android/data/com.local.claudepill/files/`:
+**Files** in `/sdcard/Android/data/com.local.agentpill/files/`:
 
 - `override`: the take-over marker
 - `rects`: button positions, written by the app for `touchlock`
@@ -93,4 +93,4 @@ The `touch` state only changes the look and lets injected taps pass through the 
 - The take-over marker stops `phonectl` and the lock. It cannot stop an agent that calls `input` directly.
 - The terminal button opens Haven (`sh.haven.app`). For another terminal change the package name in
   `PillService.java`, `AndroidManifest.xml` (`<queries>`) and `touchlock.c`, then rebuild.
-- The package id keeps its original name, `com.local.claudepill`, so existing installs can be updated.
+- Releases up to v1.2.0 used another package id. Uninstall that app before installing a newer build.

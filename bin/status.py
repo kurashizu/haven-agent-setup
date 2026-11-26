@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -I
-"""Claude Code adapter for the status pill. Uses only documented interfaces:
-hooks (https://code.claude.com/docs/en/hooks) and `claude agents --json`.
+"""Hook adapter for the status pill, verified with Claude Code. Uses only documented interfaces:
+the agent's hooks and its `agents --json` status command.
 
-Usage: status.py hook               called by Claude Code, event JSON on stdin
+Usage: status.py hook               called by the agent, event JSON on stdin
        status.py watch SESSION_ID   started by the hook: no hook fires when the user interrupts
 
 "Thinking" is reported only when a request is about to go to the model: after a prompt, and after a
@@ -13,7 +13,8 @@ PHONECTL = os.path.join(os.path.dirname(os.path.realpath(__file__)), "phonectl")
 # raw commands that drive the screen without going through phonectl (which locks by itself)
 RAW_SHELL = re.compile(r"\brish\s+-c\b|\badb\b.*\bshell\b")
 RAW_DRIVE = re.compile(r"\binput (tap|swipe|text|keyevent|motionevent|draganddrop)\b|\bam start |statusbar expand")
-QUIET_SECONDS = 5  # only ask Claude Code for its status after this long without any hook
+AGENT_CLI = "claude"
+QUIET_SECONDS = 5  # only ask the agent for its status after this long without any hook
 
 
 def phonectl(*args):
@@ -42,10 +43,10 @@ def session_state(session):
         json.dump(state, f)
 
 
-def claude_status(session):
-    """`status` of this session from `claude agents --json`: busy, waiting or idle. None if unknown."""
+def agent_status(session):
+    """`status` of this session from `agents --json`: busy, waiting or idle. None if unknown."""
     try:
-        out = subprocess.run(["claude", "agents", "--json"], stdin=subprocess.DEVNULL, capture_output=True,
+        out = subprocess.run([AGENT_CLI, "agents", "--json"], stdin=subprocess.DEVNULL, capture_output=True,
                              text=True, timeout=30).stdout
         return next((a.get("status") for a in json.loads(out) if a.get("sessionId") == session), None)
     except (OSError, ValueError, subprocess.TimeoutExpired):
@@ -76,7 +77,7 @@ def watch(session, pause=QUIET_SECONDS):
                 idle = 0
                 continue
             seen = state["seen"]
-        status = claude_status(session)  # outside the lock: it takes a moment and hooks must not wait
+        status = agent_status(session)  # outside the lock: it takes a moment and hooks must not wait
         with session_state(session) as state:
             if state["over"]:
                 return

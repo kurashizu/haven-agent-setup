@@ -1,7 +1,7 @@
 #!/bin/sh
 # Drag the pill down by its label area, check the buttons moved, then drag it back.
 R() { timeout 40 rish -c "$1" </dev/null; }
-RF=/sdcard/Android/data/com.local.claudepill/files/rects
+RF=/sdcard/Android/data/com.local.agentpill/files/rects
 "$(dirname "$0")/../bin/phonectl" state working Drag test; sleep 2
 echo "before: $(R "cat $RF")"
 set -- $(R "cat $RF")
