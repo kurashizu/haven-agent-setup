@@ -1,11 +1,11 @@
-# 踩过的坑
+# Pitfalls
 
-- **重启 adbd 会杀掉 Shizuku**：`adb tcpip` / `adb usb` 之后要重新启动它。
-- **读不到无线调试端口**：开发时的手机上 `getprop service.adb.tls.port` 是空的，只能从设置页面看（可用 `rish` 打开页面再截屏）。
-- **`rish` 下 `uiautomator dump` 不工作**，而且可能读到旧文件。用截屏代替。
-- **系统设置的部分页面会隐藏悬浮窗**，胶囊看不见也点不到。
-- **Android 11+ 包可见性**：不在清单里声明 `<queries>`，`getLaunchIntentForPackage` 返回空，按钮点了没反应。
-- **更新正在运行的二进制会静默失败**：先结束进程、删文件、再写，并核对校验值。
-- **hook 误匹配**：写测试脚本的 heredoc 里出现点击指令，也会触发锁屏。把这类内容放进文件，不要写在命令行里。
-- **proot 里不能跑真正的容器**，也没有 `/dev/kvm`。
-- **Haven 换签名渠道要卸载重装**，会丢掉整个 Debian 环境。
+- **Restarting adbd kills Shizuku**: start it again after `adb tcpip` / `adb usb`.
+- **The wireless debugging port may not be readable**: on the development phone `getprop service.adb.tls.port` was empty. Read it from the settings page (open the page with `rish` and take a screenshot).
+- **`uiautomator dump` does not work under `rish`**, and you may end up reading a stale file. Use screenshots.
+- **Some system settings pages hide overlays**: the pill is neither visible nor tappable there.
+- **Android 11+ package visibility**: without `<queries>` in the manifest, `getLaunchIntentForPackage` returns null and the button silently does nothing.
+- **Overwriting a running binary fails silently**: stop the process, delete the file, write it again and verify the checksum.
+- **Hook false positives**: a heredoc that merely contains tap commands also triggers the touch lock. Keep such content in files, not on the command line.
+- **No real containers in proot**, and no `/dev/kvm`.
+- **Switching Haven to a differently signed build requires uninstalling it**, which destroys the whole Debian environment.

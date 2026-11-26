@@ -1,27 +1,27 @@
-# 胶囊与锁屏
+# Pill and touch lock
 
-## 状态
+## States
 
-| 胶囊 | 触摸屏 | 按钮 |
+| Pill | Touchscreen | Buttons |
 |---|---|---|
-| 黄 `Working` | 正常 | `❚❚` 接管、`>_` 回终端 |
-| 红 `Touch locked` | 只有胶囊按钮有效 | `❚❚`、`>_` |
-| 紫 `Taken over` | 正常，Claude 不能再点屏幕 | `▶` 交还、`>_` |
-| 蓝 `Your turn` | 正常 | `>_` |
-| 绿 `Done` | 正常 | `>_`；5 秒后消失并发一条通知 |
+| Yellow `Working` | normal | `❚❚` take over, `>_` open terminal |
+| Red `Touch locked` | only the pill buttons respond | `❚❚`, `>_` |
+| Purple `Taken over` | normal; Claude can no longer tap | `▶` hand back, `>_` |
+| Blue `Your turn` | normal | `>_` |
+| Green `Done` | normal | `>_`; disappears after 5 s and posts a notification |
 
-发新消息会清除“接管”标记。
+Sending a new prompt clears "taken over".
 
-## 手势
+## Gestures
 
-- 按住按钮以外的区域拖动，位置会记住。
-- 推出屏幕侧边超过三分之一后松手：收成小标签。点一下或往里拉展开。
-- 锁定时自动展开。
+- Drag anywhere except a button; the position is remembered.
+- Push more than a third of the pill past a side edge and let go: it tucks into a small tab. Tap it or pull it inwards to open.
+- It opens by itself while touch is locked.
 
-## 工作原理
+## How it works
 
-- `bin/status.py` 由 Claude Code hooks 调用，经 `rish` 把状态发给 App。App 的服务受 `DUMP` 权限保护，普通应用无法调用。
-- 命令里带 `rish -c` 或 `adb shell`，并且含 `input …` 或 `am start `，会先锁触摸。用户接管后，这类命令被 hook 拦下。
-- `touchlock` 用 `EVIOCGRAB` 独占触摸屏（shell 属于 `input` 组），同时读原始坐标，只响应胶囊按钮区域。模拟点击走系统注入，不受影响。
-- App 把按钮坐标写到自己的外部目录，`touchlock` 在每次触摸时读取。
-- 锁定时窗口设为不可触摸（alpha ≤ 0.8），模拟点击可以穿透。
+- Claude Code hooks call `bin/status.py`, which sends the state to the app through `rish`. The app's service is protected by the `DUMP` permission, so ordinary apps cannot drive it.
+- A command containing `rish -c` or `adb shell` together with `input …` or `am start ` locks touch first. After you take over, the hook blocks such commands.
+- `touchlock` grabs the touchscreen with `EVIOCGRAB` (shell is in the `input` group) and reads raw coordinates, reacting only to the pill buttons. Simulated taps are injected by the system and are unaffected.
+- The app writes its button positions to its own external directory; `touchlock` reads them on every touch.
+- While locked the window is not touchable (alpha ≤ 0.8), so injected taps pass through it.

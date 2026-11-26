@@ -1,47 +1,49 @@
 # haven-claude-setup
 
-让运行在手机上的 Claude Code 控制这台手机本身：Android 上的 [Haven](https://github.com/GlassHaven/Haven) 终端 → Debian (proot) → Claude Code → [Shizuku](https://github.com/RikkaApps/Shizuku)。**不需要 root，不需要电脑。**
+Let Claude Code running **on** an Android phone control that same phone: the [Haven](https://github.com/GlassHaven/Haven) terminal → Debian (proot) → Claude Code → [Shizuku](https://github.com/RikkaApps/Shizuku). **No root, no computer.**
 
-## 包含什么
+## What is in here
 
-| 目录 | 内容 |
+| Directory | Contents |
 |---|---|
-| `pill/` | **Claude Pill**：显示 Claude 状态的悬浮胶囊（可拖动、可收纳到侧边） |
-| `touchlock/` | Claude 操作屏幕时独占触摸屏，手指失效，模拟点击照常 |
-| `bin/` | `status.py`（hooks 入口）、`phone-shot`（不带胶囊的截屏）、`phone-adb`（adb 重连）、`ui-texts` |
-| `claude/` | hooks 配置、状态栏脚本、自动启动片段、记忆笔记模板 |
-| `docs/` | [配置步骤](docs/setup.md)、[胶囊与锁屏](docs/pill.md)、[踩过的坑](docs/pitfalls.md) |
-| `tests/` | 开发时用的手动测试脚本（会真的操作屏幕，坐标按 1080×2400 竖屏写的） |
+| `pill/` | **Claude Pill**: a floating pill showing Claude's state (draggable, tucks into a screen edge) |
+| `touchlock/` | Grabs the touchscreen while Claude operates it: your fingers are ignored, injected input still works |
+| `bin/` | `status.py` (hook entry point), `phone-shot` (screenshot without the pill), `phone-adb` (adb reconnect), `ui-texts` |
+| `claude/` | Hook configuration, status line script, auto-start snippet, memory note templates |
+| `docs/` | [Setup](docs/setup.md), [pill and touch lock](docs/pill.md), [pitfalls](docs/pitfalls.md) |
+| `tests/` | Manual test scripts used during development (they really operate the screen; coordinates assume 1080×2400 portrait) |
 
-## 安装
+## Install
 
-先按 [docs/setup.md](docs/setup.md) 装好并启动 Shizuku，然后：
+Install and start Shizuku first ([docs/setup.md](docs/setup.md)), then:
 
 ```bash
 git clone https://github.com/kurashizu/haven-claude-setup
 cd haven-claude-setup
-./install.sh                 # 胶囊、锁屏、hooks
-./install.sh --statusline --autostart --memory   # 可选项
+./install.sh                 # pill, touch lock, hooks
+./install.sh --statusline --autostart --memory   # optional extras
 ```
 
-安装后重启 Claude Code。仓库目录就是运行目录，装好后不要移动或删除。
+Restart Claude Code afterwards. The clone is the running copy, so do not move or delete it.
 
-## 安全须知（请先读）
+The [releases](https://github.com/kurashizu/haven-claude-setup/releases) carry a prebuilt APK and arm64 `touchlock` binary for reference. `install.sh` does not use them: it builds from source and signs with a key generated on your device. If you installed the release APK first, uninstall it before running the script.
 
-- Shizuku 运行时，这个 Debian 里的**任何程序**都能取得 Android shell 权限（截屏、模拟点击、装卸应用、改系统设置）。
-- 锁屏功能会让触摸屏失灵。保险：**任意音量键立即解锁**，每步最长 90 秒自动解锁。请先确认音量键解锁有效。
-- 开机自启 Shizuku 会自动打开无线调试。
-- 仅用于你自己的设备。按原样提供，风险自负。
+## Security (read this first)
 
-## 验证状态
+- While Shizuku is running, **any program** in this Debian can get an Android shell: screenshots, simulated taps, installing and removing apps, changing system settings.
+- The touch lock disables your touchscreen. Safety nets: **any volume key unlocks immediately**, and each step unlocks by itself after at most 90 seconds. Check that the volume key works before relying on it.
+- Shizuku's start-on-boot turns wireless debugging on by itself.
+- For your own devices only. Provided as is, at your own risk.
 
-只在一台 Android 16 手机上开发和使用过。
+## What has and has not been verified
 
-- **`install.sh` 还没有在全新环境完整运行过。**
-- 手机重启后 Shizuku 自启：未验证。
-- 往左侧收纳、收纳震动、锁定状态下按小圆按钮：未单独验证。
-- 横屏时，锁定状态下的按钮点击区域可能对不上（用音量键）。
+Developed and used on a single Android 16 phone.
 
-## 许可证
+- **`install.sh` has not been run end to end on a fresh setup.**
+- Shizuku starting by itself after a reboot: not verified.
+- Tucking into the left edge, the vibration when tucking, and pressing the small round buttons while locked: not separately verified.
+- In landscape the button hit areas may be off while locked (use a volume key).
+
+## License
 
 [MIT](LICENSE)
